@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Rota Livre</string>
+    <string name="service_desc">Lê as ofertas de corrida da Uber e da 99 na tela e mostra distância até o passageiro, valor por km e valor por hora. Não aceita nem recusa corridas.</string>
+</resources>
