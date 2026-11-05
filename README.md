@@ -24,7 +24,7 @@ O quadro aparece assim que a oferta chega e some sozinho depois de 8 segundos.
 - Tema claro e escuro
 
 ## Instalação
-1. Baixe o APK em **[Releases](../../releases/latest)** e instale (permita "fontes desconhecidas").
+1. **[Baixar o APK](https://andreluizs.com.br/rotalivre)** (ou veja todas as versões em [Releases](../../releases)) e instale (permita "fontes desconhecidas").
 2. Abra o Rota Livre e toque em **Ativar** → ligue **Rota Livre** na Acessibilidade.
 3. Ajuste os valores e toque em **Salvar**.
 4. Abra o app da Uber, da 99 ou de delivery e fique online.
@@ -47,6 +47,10 @@ Requisitos: JDK 17+ e Android SDK 34.
 
 Para gerar o APK de release assinado, crie uma keystore e o arquivo `~/.rotalivre/keystore.properties`
 (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`), e rode `./gradlew assembleRelease`.
+
+### Publicar uma nova versão
+Crie uma release no GitHub e anexe o APK assinado com o nome **`RotaLivre.apk`**.
+O link `andreluizs.com.br/rotalivre` sempre baixa o `RotaLivre.apk` da release mais recente.
 
 ### Estrutura
 | Arquivo | Função |
