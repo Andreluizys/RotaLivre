@@ -123,12 +123,7 @@ class MainActivity : AppCompatActivity() {
         tvCount = find(R.id.tvCount)
         tvAvg = find(R.id.tvAvg)
         btnAccess.setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
-        find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }
-        find<MaterialButton>(R.id.btnDemo).setOnClickListener {
-            val svc = RideService.instance
-            if (svc == null) previewOverlay(null) else svc.demoSequence()
-        }
-    }
+        find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }    }
 
     /** Mostra um quadro de exemplo; [scale] = tamanho ainda não salvo (null = o salvo). */
     private fun previewOverlay(scale: Float?) {
