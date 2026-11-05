@@ -267,6 +267,29 @@ class RideService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
+        if (debuggable) registrarGatilhoDemo()
+    }
+
+    // Só na versão de testes (debug): permite iniciar a demonstração por adb, sem botão no app:
+    //   adb shell am broadcast -a br.com.andreluizs.rotalivre.DEMO
+    private var gatilhoDemo: android.content.BroadcastReceiver? = null
+
+    private fun registrarGatilhoDemo() {
+        val receptor = object : android.content.BroadcastReceiver() {
+            override fun onReceive(c: android.content.Context?, i: android.content.Intent?) = demoSequence()
+        }
+        val filtro = android.content.IntentFilter("br.com.andreluizs.rotalivre.DEMO")
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(receptor, filtro, android.content.Context.RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(receptor, filtro)
+        }
+        gatilhoDemo = receptor
+    }
+
+    private fun soltarGatilhoDemo() {
+        gatilhoDemo?.let { try { unregisterReceiver(it) } catch (_: Exception) {} }
+        gatilhoDemo = null
     }
 
     /** Mostra uma oferta de exemplo, para o usuário conferir que o quadro aparece. */
@@ -309,6 +332,7 @@ class RideService : AccessibilityService() {
 
     override fun onUnbind(intent: android.content.Intent?): Boolean {
         instance = null
+        soltarGatilhoDemo()
         return super.onUnbind(intent)
     }
 
