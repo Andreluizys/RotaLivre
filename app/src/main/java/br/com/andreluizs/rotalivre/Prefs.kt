@@ -5,17 +5,17 @@ import java.util.Calendar
 
 object Prefs {
     val DAYS = listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
-    val PERIODS = listOf("0-6h", "6-12h", "12-18h", "18-24h")
     val FUELS = listOf("Gasolina", "Etanol", "GNV")
 
     private fun sp(c: Context) = c.getSharedPreferences("cfg", Context.MODE_PRIVATE)
 
-    // ---- Mínimo R$/km por dia e horário ----
-    fun getMin(c: Context, day: Int, period: Int): Float =
-        sp(c).getFloat("min_${day}_$period", 2.0f)
+    // ---- Mínimo R$/km por dia da semana (0 = Dom ... 6 = Sáb) ----
+    // Se ainda não há valor por dia, aproveita o da antiga faixa 0-6h (migração).
+    fun getMinDay(c: Context, day: Int): Float =
+        sp(c).getFloat("minday_$day", sp(c).getFloat("min_${day}_0", 2.0f))
 
-    fun setMin(c: Context, day: Int, period: Int, v: Float) =
-        sp(c).edit().putFloat("min_${day}_$period", v).apply()
+    fun setMinDay(c: Context, day: Int, v: Float) =
+        sp(c).edit().putFloat("minday_$day", v).apply()
 
     // ---- Pico ----
     fun isPicoOn(c: Context) = sp(c).getBoolean("pico_on", false)
@@ -84,11 +84,9 @@ object Prefs {
     fun showSummary(c: Context) = sp(c).getBoolean("show_summary", true)
     fun setShowSummary(c: Context, v: Boolean) = sp(c).edit().putBoolean("show_summary", v).apply()
 
-    /** Valor mínimo por km para agora (dia da semana + faixa de horário). */
+    /** Valor mínimo por km para hoje (dia da semana). */
     fun currentMin(c: Context): Float {
-        val cal = Calendar.getInstance()
-        val day = cal.get(Calendar.DAY_OF_WEEK) - 1      // 0 = Dom ... 6 = Sáb
-        val period = cal.get(Calendar.HOUR_OF_DAY) / 6     // 0..3
-        return getMin(c, day, period)
+        val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1   // 0 = Dom ... 6 = Sáb
+        return getMinDay(c, day)
     }
 }

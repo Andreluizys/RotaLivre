@@ -27,9 +27,9 @@ import kotlin.math.roundToInt
 class MainActivity : AppCompatActivity() {
 
     /** Mínimos em edição: [dia][faixa]. Só vão para o Prefs ao tocar em Salvar. */
-    private val mins = Array(7) { FloatArray(4) }
+    private val mins = FloatArray(7)
     private var currentDay = 0
-    private lateinit var periodFields: List<EditText>
+    private lateinit var etDayMin: EditText
 
     private lateinit var dot: View
     private lateinit var tvStatusTitle: TextView
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             Prefs.setDeliveryOn(this, swDelivery.isChecked)
             Prefs.setDeliveryMin(this, etDeliveryMin.value())
             Prefs.setDeliveryMaxPickup(this, etDeliveryMaxPickup.value())
-            for (d in 0..6) for (p in 0..3) Prefs.setMin(this, d, p, mins[d][p])
+            for (d in 0..6) Prefs.setMinDay(this, d, mins[d])
             Prefs.setFuelType(this, fuelIndex)
             Prefs.setFuelPrice(this, etFuelPrice.value())
             Prefs.setKmPerUnit(this, etKmUnit.value())
@@ -155,8 +155,8 @@ class MainActivity : AppCompatActivity() {
     // ---------- Mínimo por dia e faixa ----------
 
     private fun bindMinimums() {
-        for (d in 0..6) for (p in 0..3) mins[d][p] = Prefs.getMin(this, d, p)
-        periodFields = listOf(R.id.etP0, R.id.etP1, R.id.etP2, R.id.etP3).map { find<EditText>(it) }
+        for (d in 0..6) mins[d] = Prefs.getMinDay(this, d)
+        etDayMin = find(R.id.etP0)
 
         val group = find<ChipGroup>(R.id.chipDays)
         val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1
@@ -183,17 +183,17 @@ class MainActivity : AppCompatActivity() {
 
         find<MaterialButton>(R.id.btnApplyAll).setOnClickListener {
             storeDay()
-            for (d in 0..6) mins[currentDay].copyInto(mins[d])
+            for (d in 0..6) mins[d] = mins[currentDay]
             Toast.makeText(this, "Aplicado a todos os dias (toque em Salvar)", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun storeDay() {
-        periodFields.forEachIndexed { p, f -> mins[currentDay][p] = f.value() }
+        mins[currentDay] = etDayMin.value()
     }
 
     private fun loadDay() {
-        periodFields.forEachIndexed { p, f -> f.setText(fmt(mins[currentDay][p])) }
+        etDayMin.setText(fmt(mins[currentDay]))
     }
 
     // ---------- Custos ----------

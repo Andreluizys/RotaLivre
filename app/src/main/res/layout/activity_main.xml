@@ -117,37 +117,19 @@
     android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:padding="18dp">
-        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mínimo por dia e horário" />
-        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="R$ por km mínimo em cada faixa. Escolha o dia e preencha" />
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mínimo por dia" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Escolha o dia da semana e informe o mínimo em R$ por km" />
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
 <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none">
         <com.google.android.material.chip.ChipGroup android:id="@+id/chipDays" android:layout_width="wrap_content" android:layout_height="wrap_content"
             app:singleSelection="true" app:selectionRequired="true" app:singleLine="true" />
-    </HorizontalScrollView><Space android:layout_width="match_parent" android:layout_height="10dp" /><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"><com.google.android.material.textfield.TextInputLayout
+    </HorizontalScrollView><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="0-6h" >
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Mínimo do dia escolhido" app:suffixText="R$/km">
     <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP0"
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
-</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="8dp" android:layout_height="0dp" /><com.google.android.material.textfield.TextInputLayout
-    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="6-12h" >
-    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP1"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
-</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="8dp" android:layout_height="0dp" /><com.google.android.material.textfield.TextInputLayout
-    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="12-18h" >
-    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP2"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
-</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="8dp" android:layout_height="0dp" /><com.google.android.material.textfield.TextInputLayout
-    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="18-24h" >
-    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP3"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
-</com.google.android.material.textfield.TextInputLayout></LinearLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.button.MaterialButton android:id="@+id/btnApplyAll" style="@style/Widget.Material3.Button.TextButton"
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.button.MaterialButton android:id="@+id/btnApplyAll" style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Aplicar a todos os dias" />
         </LinearLayout>
     </LinearLayout>
