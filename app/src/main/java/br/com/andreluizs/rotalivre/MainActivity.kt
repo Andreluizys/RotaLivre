@@ -108,6 +108,13 @@ class MainActivity : AppCompatActivity() {
         tvCount = find(R.id.tvCount)
         tvAvg = find(R.id.tvAvg)
         btnAccess.setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+        find<MaterialButton>(R.id.btnTest).setOnClickListener {
+            val svc = RideService.instance
+            if (svc == null) {
+                Toast.makeText(this, "Leitura inativa: ligue o Rota Livre na Acessibilidade (desligue e ligue de novo)", Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            } else svc.demo()
+        }
     }
 
     private fun refreshStatus() {

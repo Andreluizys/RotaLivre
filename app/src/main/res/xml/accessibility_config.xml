@@ -4,6 +4,7 @@
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
+    android:isAccessibilityTool="true"
     android:notificationTimeout="300"
     android:packageNames="com.ubercab.driver,com.app99.driver,br.com.ifood.driver.app,com.loggi.driverapp,com.shopee.spx.driver.brazil"
     android:description="@string/service_desc" />

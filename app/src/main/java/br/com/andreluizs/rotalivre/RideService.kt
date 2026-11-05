@@ -54,12 +54,20 @@ class RideService : AccessibilityService() {
         show(offer, delivery)
     }
 
+    companion object {
+        @Volatile var instance: RideService? = null
+    }
+
     private var lastLogSig = ""
     private fun logTexts(pkg: String, texts: List<String>, parsed: Boolean) {
         val sig = "$pkg|${texts.hashCode()}"
         if (sig == lastLogSig) return
         lastLogSig = sig
         Log.d("RotaLivre", "pkg=$pkg parsed=$parsed texts=$texts")
+        if (texts.isEmpty()) {
+            val w = windows.joinToString { "[type=${it.type} pkg=${it.root?.packageName} filhos=${it.root?.childCount}]" }
+            Log.d("RotaLivre", "vazio: janelas=$w")
+        }
     }
 
     private fun collect(node: AccessibilityNodeInfo?, out: MutableList<String>) {
@@ -206,9 +214,25 @@ class RideService : AccessibilityService() {
         card = null
     }
 
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        instance = this
+    }
+
+    /** Mostra uma oferta de exemplo, para o usuário conferir que o quadro aparece. */
+    fun demo(delivery: Boolean = false) {
+        show(Offer(price = 18.0, pickupKm = 1.2, tripKm = 7.3, totalMin = 24, surge = false), delivery)
+    }
+
     override fun onInterrupt() {}
 
+    override fun onUnbind(intent: android.content.Intent?): Boolean {
+        instance = null
+        return super.onUnbind(intent)
+    }
+
     override fun onDestroy() {
+        instance = null
         handler.removeCallbacks(hideRunnable)
         hideOverlay()
         super.onDestroy()

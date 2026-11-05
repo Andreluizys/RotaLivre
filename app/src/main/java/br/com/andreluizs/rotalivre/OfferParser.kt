@@ -36,8 +36,19 @@ object OfferParser {
 
     private fun num(s: String) = s.replace(",", ".").toDouble()
 
+    /** Elemento que é só o preço da corrida (ex.: "R$ 14,04"), no formato real da Uber. */
+    private val priceOnlyRx = Regex("""^R\$\s?\d{1,4}(?:[.,]\d{2})?$""")
+
     fun parse(texts: List<String>): Offer? {
-        val all = texts.joinToString(" | ")
+        // Cartão da oferta: começa no preço. Antes dele ficam avisos do mapa
+        // ("+R$ 3,75", "1-7 min") que não fazem parte da corrida.
+        // O preço da corrida é o "R$ x" mais próximo antes da 1ª distância
+        // (o primeiro da tela pode ser o ganho do dia, ex.: "R$ 43,93").
+        val firstDist = texts.indexOfFirst { distRx.containsMatchIn(it) }
+        val start = if (firstDist < 0) -1
+            else texts.subList(0, firstDist).indexOfLast { priceOnlyRx.matches(it.trim()) }
+        val card = if (start >= 0) texts.subList(start, texts.size) else texts
+        val all = card.joinToString(" | ")
         val price = findPrice(all) ?: return null
 
         val dists = distRx.findAll(all).map {
@@ -52,7 +63,7 @@ object OfferParser {
         val mins = minRx.findAll(all).map { it.groupValues[1].toInt() }.toList()
         val totalMin = if (mins.isNotEmpty()) mins.take(2).sum() else null
 
-        val low = all.lowercase()
+        val low = texts.joinToString(" | ").lowercase()
         val surge = surgeWords.any { low.contains(it) } ||
                 multRx.containsMatchIn(all) ||
                 extraRx.containsMatchIn(all)
