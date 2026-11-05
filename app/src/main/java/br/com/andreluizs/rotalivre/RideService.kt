@@ -20,6 +20,7 @@ import android.widget.TextView
 class RideService : AccessibilityService() {
 
     private var card: Card? = null
+    private var scale = 1f
     private var lastSig = ""
     private var lastTime = 0L
     private val debuggable by lazy {
@@ -80,9 +81,9 @@ class RideService : AccessibilityService() {
     // ---------- Quadro da corrida ----------
 
     private enum class Verdict(val label: String, val accent: Int, val bg: Int) {
-        GOOD("BOA CORRIDA", Color.rgb(79, 209, 139), Color.argb(238, 10, 40, 27)),
-        LOW("ABAIXO DO MÍNIMO", Color.rgb(255, 122, 122), Color.argb(238, 52, 16, 16)),
-        FAR("PASSAGEIRO LONGE", Color.rgb(255, 184, 77), Color.argb(238, 52, 36, 8))
+        GOOD("BOA CORRIDA", Color.rgb(79, 209, 139), Color.argb(250, 10, 40, 27)),
+        LOW("ABAIXO DO MÍNIMO", Color.rgb(255, 122, 122), Color.argb(250, 52, 16, 16)),
+        FAR("PASSAGEIRO LONGE", Color.rgb(255, 184, 77), Color.argb(250, 52, 36, 8))
     }
 
     private fun show(o: Offer, delivery: Boolean) {
@@ -113,6 +114,10 @@ class RideService : AccessibilityService() {
         if (Prefs.showProfit(this) && costKm > 0.0)
             details += "Lucro R$ %.2f  ·  custo R$ %.2f".format(o.price - custo, custo)
 
+        // Tamanho escolhido no app: se mudou, recria o quadro
+        val wanted = floatArrayOf(1f, 1.2f, 1.4f)[Prefs.getOverlaySize(this).coerceIn(0, 2)]
+        if (card != null && wanted != scale) hideOverlay()
+        scale = wanted
         val c = card ?: buildCard().also { card = it }
         c.badge.text = when {
             delivery && verdict == Verdict.FAR -> "COLETA LONGE"
@@ -139,8 +144,9 @@ class RideService : AccessibilityService() {
         }
 
         if (c.root.parent == null) {
+            val maxW = resources.displayMetrics.widthPixels - dp(16)
             val lp = WindowManager.LayoutParams(
-                dp(300),
+                minOf(dp((320 * scale).toInt()), maxW),
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -166,14 +172,14 @@ class RideService : AccessibilityService() {
             if (bold) setTypeface(typeface, Typeface.BOLD)
         }
 
-        val badge = tv(11f, Color.WHITE, true).apply {
-            letterSpacing = 0.08f
-            setPadding(dp(10), dp(4), dp(10), dp(4))
+        val badge = tv(14f * scale, Color.WHITE, true).apply {
+            letterSpacing = 0.06f
+            setPadding(dp(12), dp(5), dp(12), dp(5))
         }
-        val pico = tv(11f, Color.rgb(255, 184, 77), true).apply {
+        val pico = tv(14f * scale, Color.rgb(255, 200, 90), true).apply {
             text = "🔥 PICO"
-            setPadding(dp(10), dp(4), dp(10), dp(4))
-            background = pill(Color.argb(46, 255, 184, 77))
+            setPadding(dp(12), dp(5), dp(12), dp(5))
+            background = pill(Color.argb(60, 255, 184, 77))
             visibility = View.GONE
         }
         val top = LinearLayout(this).apply {
@@ -182,14 +188,14 @@ class RideService : AccessibilityService() {
             addView(badge)
             addView(pico, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(8) })
         }
-        val main = tv(34f, Color.WHITE, true).apply { setPadding(0, dp(8), 0, 0) }
-        val sub = tv(12f, Color.argb(190, 255, 255, 255))
-        val details = tv(14f, Color.WHITE).apply { setLineSpacing(dp(3).toFloat(), 1f); setPadding(0, dp(10), 0, 0) }
-        val summary = tv(11f, Color.argb(150, 255, 255, 255)).apply { setPadding(0, dp(10), 0, 0) }
+        val main = tv(46f * scale, Color.WHITE, true).apply { setPadding(0, dp(8), 0, 0) }
+        val sub = tv(16f * scale, Color.argb(235, 255, 255, 255))
+        val details = tv(20f * scale, Color.WHITE, true).apply { setLineSpacing(dp(4).toFloat(), 1f); setPadding(0, dp(12), 0, 0) }
+        val summary = tv(13f * scale, Color.argb(200, 255, 255, 255)).apply { setPadding(0, dp(12), 0, 0) }
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(14), dp(16), dp(14))
+            setPadding(dp(18), dp(16), dp(18), dp(16))
             background = GradientDrawable().apply { cornerRadius = dp(20).toFloat() }
             addView(top)
             addView(main)

@@ -62,6 +62,9 @@ class MainActivity : AppCompatActivity() {
         val swProfit = find<MaterialSwitch>(R.id.swProfit).apply { isChecked = Prefs.showProfit(this@MainActivity) }
         val swSummary = find<MaterialSwitch>(R.id.swSummary).apply { isChecked = Prefs.showSummary(this@MainActivity) }
 
+        val sizeChips = listOf(R.id.chipSize0, R.id.chipSize1, R.id.chipSize2).map { find<Chip>(it) }
+        sizeChips[Prefs.getOverlaySize(this).coerceIn(0, 2)].isChecked = true
+
         bindSupport()
 
         find<ExtendedFloatingActionButton>(R.id.fabSave).setOnClickListener {
@@ -77,6 +80,7 @@ class MainActivity : AppCompatActivity() {
             Prefs.setFuelPrice(this, etFuelPrice.value())
             Prefs.setKmPerUnit(this, etKmUnit.value())
             Prefs.setMaintPerKm(this, etMaint.value())
+            Prefs.setOverlaySize(this, sizeChips.indexOfFirst { it.isChecked }.coerceAtLeast(0))
             Prefs.setShowPickup(this, swPickup.isChecked)
             Prefs.setShowPerKm(this, swPerKm.isChecked)
             Prefs.setShowPerHour(this, swPerHour.isChecked)

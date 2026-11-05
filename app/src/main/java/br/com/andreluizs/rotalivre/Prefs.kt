@@ -64,6 +64,10 @@ object Prefs {
 
     fun hasCosts(c: Context) = costPerKm(c) > 0.0
 
+    /** Tamanho das letras do quadro: 0 = Normal, 1 = Grande, 2 = Extra. */
+    fun getOverlaySize(c: Context) = sp(c).getInt("overlay_size", 1)
+    fun setOverlaySize(c: Context, v: Int) = sp(c).edit().putInt("overlay_size", v).apply()
+
     // ---- O que mostrar no quadro da corrida ----
     fun showPickup(c: Context) = sp(c).getBoolean("show_pickup", true)
     fun setShowPickup(c: Context, v: Boolean) = sp(c).edit().putBoolean("show_pickup", v).apply()
