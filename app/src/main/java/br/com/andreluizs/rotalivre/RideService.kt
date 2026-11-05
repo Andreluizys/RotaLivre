@@ -21,6 +21,7 @@ class RideService : AccessibilityService() {
 
     private var card: Card? = null
     private var scale = 1f
+    private var previewScale: Float? = null
     private var lastSig = ""
     private var lastTime = 0L
     private val debuggable by lazy {
@@ -115,7 +116,7 @@ class RideService : AccessibilityService() {
             details += "Lucro R$ %.2f  ·  custo R$ %.2f".format(o.price - custo, custo)
 
         // Tamanho escolhido no app: se mudou, recria o quadro
-        val wanted = floatArrayOf(1f, 1.2f, 1.4f)[Prefs.getOverlaySize(this).coerceIn(0, 2)]
+        val wanted = previewScale ?: Prefs.getOverlayScale(this)
         if (card != null && wanted != scale) hideOverlay()
         scale = wanted
         val c = card ?: buildCard().also { card = it }
@@ -226,8 +227,13 @@ class RideService : AccessibilityService() {
     }
 
     /** Mostra uma oferta de exemplo, para o usuário conferir que o quadro aparece. */
-    fun demo(delivery: Boolean = false) {
-        show(Offer(price = 18.0, pickupKm = 1.2, tripKm = 7.3, totalMin = 24, surge = false), delivery)
+    fun demo(delivery: Boolean = false, scale: Float? = null) {
+        previewScale = scale
+        try {
+            show(Offer(price = 18.0, pickupKm = 1.2, tripKm = 7.3, totalMin = 24, surge = false), delivery)
+        } finally {
+            previewScale = null
+        }
     }
 
     override fun onInterrupt() {}

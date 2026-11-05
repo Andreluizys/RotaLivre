@@ -16,11 +16,13 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.slider.Slider
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -62,8 +64,12 @@ class MainActivity : AppCompatActivity() {
         val swProfit = find<MaterialSwitch>(R.id.swProfit).apply { isChecked = Prefs.showProfit(this@MainActivity) }
         val swSummary = find<MaterialSwitch>(R.id.swSummary).apply { isChecked = Prefs.showSummary(this@MainActivity) }
 
-        val sizeChips = listOf(R.id.chipSize0, R.id.chipSize1, R.id.chipSize2).map { find<Chip>(it) }
-        sizeChips[Prefs.getOverlaySize(this).coerceIn(0, 2)].isChecked = true
+        val tvSize = find<TextView>(R.id.tvSizeLabel)
+        val slider = find<Slider>(R.id.sliderSize).apply { value = Prefs.getOverlayScale(this@MainActivity) }
+        fun sizeLabel() { tvSize.text = "Tamanho da janela: ${(slider.value * 100).roundToInt()}%" }
+        sizeLabel()
+        slider.addOnChangeListener { _, _, _ -> sizeLabel() }
+        find<MaterialButton>(R.id.btnPreview).setOnClickListener { previewOverlay(slider.value) }
 
         bindSupport()
 
@@ -80,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             Prefs.setFuelPrice(this, etFuelPrice.value())
             Prefs.setKmPerUnit(this, etKmUnit.value())
             Prefs.setMaintPerKm(this, etMaint.value())
-            Prefs.setOverlaySize(this, sizeChips.indexOfFirst { it.isChecked }.coerceAtLeast(0))
+            Prefs.setOverlayScale(this, slider.value)
             Prefs.setShowPickup(this, swPickup.isChecked)
             Prefs.setShowPerKm(this, swPerKm.isChecked)
             Prefs.setShowPerHour(this, swPerHour.isChecked)
@@ -112,13 +118,16 @@ class MainActivity : AppCompatActivity() {
         tvCount = find(R.id.tvCount)
         tvAvg = find(R.id.tvAvg)
         btnAccess.setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
-        find<MaterialButton>(R.id.btnTest).setOnClickListener {
-            val svc = RideService.instance
-            if (svc == null) {
-                Toast.makeText(this, "Leitura inativa: ligue o Rota Livre na Acessibilidade (desligue e ligue de novo)", Toast.LENGTH_LONG).show()
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-            } else svc.demo()
-        }
+        find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }
+    }
+
+    /** Mostra um quadro de exemplo; [scale] = tamanho ainda não salvo (null = o salvo). */
+    private fun previewOverlay(scale: Float?) {
+        val svc = RideService.instance
+        if (svc == null) {
+            Toast.makeText(this, "Leitura inativa: ligue o Rota Livre na Acessibilidade (desligue e ligue de novo)", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        } else svc.demo(scale = scale)
     }
 
     private fun refreshStatus() {
@@ -155,15 +164,17 @@ class MainActivity : AppCompatActivity() {
                 group.addView(this)
             }
         }
+        // Seleciona o dia de hoje e carrega os valores ANTES de ligar o listener:
+        // senão o listener "guardaria" os campos ainda vazios (0.00) por cima dos valores salvos.
+        currentDay = today
+        chips[today].isChecked = true
+        loadDay()
         group.setOnCheckedStateChangeListener { _, ids ->
             val chip = chips.firstOrNull { it.id == ids.firstOrNull() } ?: return@setOnCheckedStateChangeListener
             storeDay()
             currentDay = chip.tag as Int
             loadDay()
         }
-        currentDay = today
-        chips[today].isChecked = true
-        loadDay()
 
         find<MaterialButton>(R.id.btnApplyAll).setOnClickListener {
             storeDay()

@@ -64,9 +64,9 @@ object Prefs {
 
     fun hasCosts(c: Context) = costPerKm(c) > 0.0
 
-    /** Tamanho das letras do quadro: 0 = Normal, 1 = Grande, 2 = Extra. */
-    fun getOverlaySize(c: Context) = sp(c).getInt("overlay_size", 1)
-    fun setOverlaySize(c: Context, v: Int) = sp(c).edit().putInt("overlay_size", v).apply()
+    /** Tamanho da janela do quadro (1.0 = normal), escolhido pelo motorista. */
+    fun getOverlayScale(c: Context) = sp(c).getFloat("overlay_scale", 1.2f).coerceIn(0.8f, 1.8f)
+    fun setOverlayScale(c: Context, v: Float) = sp(c).edit().putFloat("overlay_scale", v).apply()
 
     // ---- O que mostrar no quadro da corrida ----
     fun showPickup(c: Context) = sp(c).getBoolean("show_pickup", true)
