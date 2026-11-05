@@ -124,6 +124,10 @@ class MainActivity : AppCompatActivity() {
         tvAvg = find(R.id.tvAvg)
         btnAccess.setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
         find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }
+        find<MaterialButton>(R.id.btnDemo).setOnClickListener {
+            val svc = RideService.instance
+            if (svc == null) previewOverlay(null) else svc.demoSequence()
+        }
     }
 
     /** Mostra um quadro de exemplo; [scale] = tamanho ainda não salvo (null = o salvo). */

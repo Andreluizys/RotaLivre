@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -10,11 +12,25 @@ android {
         applicationId = "br.com.andreluizs.rotalivre"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.3"
+    }
+    // Assinatura de release: lê as credenciais de ~/.rotalivre/keystore.properties (fora do repositório).
+    val ksFile = File(System.getProperty("user.home"), ".rotalivre/keystore.properties")
+    val ks = Properties().apply { if (ksFile.exists()) ksFile.inputStream().use { load(it) } }
+    signingConfigs {
+        if (ks.isNotEmpty()) create("release") {
+            storeFile = file(ks.getProperty("storeFile"))
+            storePassword = ks.getProperty("storePassword")
+            keyAlias = ks.getProperty("keyAlias")
+            keyPassword = ks.getProperty("keyPassword")
+        }
     }
     buildTypes {
-        release { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = false
+            if (ks.isNotEmpty()) signingConfig = signingConfigs.getByName("release")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

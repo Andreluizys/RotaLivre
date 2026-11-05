@@ -40,6 +40,8 @@
         </LinearLayout>
         <com.google.android.material.button.MaterialButton android:id="@+id/btnTest" style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Testar quadro da corrida" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnDemo" style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Iniciar demonstração" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
 <com.google.android.material.card.MaterialCardView style="@style/Card"

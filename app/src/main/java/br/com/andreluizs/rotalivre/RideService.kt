@@ -126,7 +126,7 @@ class RideService : AccessibilityService() {
     }
 
     private fun show(o: Offer, delivery: Boolean, renew: Boolean = true) {
-        val picoAtivo = !delivery && Prefs.isPicoOn(this) && o.surge
+        val picoAtivo = !delivery && (Prefs.isPicoOn(this) || demoFull) && o.surge
         val limite = when {
             delivery -> Prefs.getDeliveryMin(this)
             picoAtivo -> Prefs.getPicoMin(this)
@@ -140,17 +140,18 @@ class RideService : AccessibilityService() {
             else -> Verdict.GOOD
         }
 
-        val costKm = Prefs.costPerKm(this)
+        // Na demonstração mostra todas as linhas e usa um custo de exemplo (R$ 0,55/km).
+        val costKm = Prefs.costPerKm(this).let { if (demoFull && it <= 0.0) 0.55 else it }
         val custo = o.totalKm * costKm
 
         val details = mutableListOf<String>()
-        if (Prefs.showPickup(this))
+        if (Prefs.showPickup(this) || demoFull)
             details += "%s a %.1f km%s".format(
                 if (delivery) "Coleta" else "Passageiro", o.pickupKm, if (!okPickup) "  ⚠" else ""
             )
         if (Prefs.showPerKm(this)) details += "Percurso total %.1f km".format(o.totalKm)
-        if (Prefs.showPerHour(this)) o.perHour?.let { details += "≈ R$ %.0f por hora".format(it) }
-        if (Prefs.showProfit(this) && costKm > 0.0)
+        if (Prefs.showPerHour(this) || demoFull) o.perHour?.let { details += "≈ R$ %.0f por hora".format(it) }
+        if ((Prefs.showProfit(this) || demoFull) && costKm > 0.0)
             details += "Lucro R$ %.2f  ·  custo R$ %.2f".format(o.price - custo, custo)
 
         // Tamanho escolhido no app: se mudou, recria o quadro
@@ -276,6 +277,32 @@ class RideService : AccessibilityService() {
         } finally {
             previewScale = null
         }
+    }
+
+    // ---------- Demonstração (para gravar vídeo / mostrar o app) ----------
+
+    private var demoFull = false
+    private val demoHandler = Handler(Looper.getMainLooper())
+
+    private class DemoCase(val offer: Offer, val delivery: Boolean = false)
+
+    /** Mostra, uma após a outra, corridas de exemplo: boa, abaixo do mínimo, passageiro longe, pico e entrega. */
+    fun demoSequence(gapMs: Long = 6_500L) {
+        demoHandler.removeCallbacksAndMessages(null)
+        val cases = listOf(
+            DemoCase(Offer(22.40, 1.1, 8.2, 26, false)),             // boa
+            DemoCase(Offer(9.80, 2.0, 3.0, 14, false)),              // abaixo do mínimo
+            DemoCase(Offer(30.00, 5.5, 8.0, 38, false)),             // passageiro longe
+            DemoCase(Offer(26.00, 1.0, 6.0, 20, true)),              // pico
+            DemoCase(Offer(11.50, 1.4, 3.2, 17, false), delivery = true) // entrega
+        )
+        demoFull = true
+        cases.forEachIndexed { i, c ->
+            demoHandler.postDelayed({
+                show(c.offer, c.delivery)
+            }, i * gapMs)
+        }
+        demoHandler.postDelayed({ demoFull = false }, cases.size * gapMs + OVERLAY_MS)
     }
 
     override fun onInterrupt() {}
