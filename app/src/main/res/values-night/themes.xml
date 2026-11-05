@@ -1,0 +1,19 @@
+<resources>
+    <style name="Theme.RotaLivre" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand</item>
+        <item name="colorOnPrimary">@color/on_brand</item>
+        <item name="colorPrimaryContainer">@color/brand_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_brand_container</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_muted</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="android:colorBackground">@color/app_bg</item>
+        <item name="android:statusBarColor">@color/app_bg</item>
+        <item name="android:navigationBarColor">@color/app_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="shapeAppearanceMediumComponent">@style/Shape.Rounded</item>
+    </style>
+</resources>

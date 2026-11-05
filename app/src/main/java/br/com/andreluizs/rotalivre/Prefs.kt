@@ -28,6 +28,16 @@ object Prefs {
     fun getMaxPickup(c: Context) = sp(c).getFloat("max_pickup", 4.0f)
     fun setMaxPickup(c: Context, v: Float) = sp(c).edit().putFloat("max_pickup", v).apply()
 
+    // ---- Apps de delivery (iFood, Loggi, Shopee...) ----
+    fun isDeliveryOn(c: Context) = sp(c).getBoolean("delivery_on", true)
+    fun setDeliveryOn(c: Context, v: Boolean) = sp(c).edit().putBoolean("delivery_on", v).apply()
+
+    fun getDeliveryMin(c: Context) = sp(c).getFloat("delivery_min", 1.5f)
+    fun setDeliveryMin(c: Context, v: Float) = sp(c).edit().putFloat("delivery_min", v).apply()
+
+    fun getDeliveryMaxPickup(c: Context) = sp(c).getFloat("delivery_max_pickup", 3.0f)
+    fun setDeliveryMaxPickup(c: Context, v: Float) = sp(c).edit().putFloat("delivery_max_pickup", v).apply()
+
     // ---- Custos (opcionais) ----
     fun getFuelType(c: Context) = sp(c).getInt("fuel_type", 0)
     fun setFuelType(c: Context, v: Int) = sp(c).edit().putInt("fuel_type", v).apply()

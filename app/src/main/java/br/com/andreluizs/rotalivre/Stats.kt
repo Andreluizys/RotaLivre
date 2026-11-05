@@ -18,6 +18,13 @@ object Stats {
             .apply()
     }
 
+    fun count(c: Context): Int = sp(c).getInt("count_${today()}", 0)
+
+    fun average(c: Context): Float {
+        val n = count(c)
+        return if (n > 0) sp(c).getFloat("sum_${today()}", 0f) / n else 0f
+    }
+
     fun summary(c: Context): String {
         val d = today()
         val n = sp(c).getInt("count_$d", 0)

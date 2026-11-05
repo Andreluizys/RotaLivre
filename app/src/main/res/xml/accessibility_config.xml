@@ -2,8 +2,8 @@
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews"
+    android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="300"
-    android:packageNames="com.ubercab.driver,com.app99.driver"
+    android:packageNames="com.ubercab.driver,com.app99.driver,br.com.ifood.driver.app,com.loggi.driverapp,com.shopee.spx.driver.brazil"
     android:description="@string/service_desc" />

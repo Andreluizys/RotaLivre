@@ -4,11 +4,16 @@
     <queries>
         <package android:name="com.ubercab.driver" />
         <package android:name="com.app99.driver" />
+        <package android:name="br.com.ifood.driver.app" />
+        <package android:name="com.loggi.driverapp" />
+        <package android:name="com.shopee.spx.driver.brazil" />
     </queries>
 
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.RotaLivre">
 
         <activity

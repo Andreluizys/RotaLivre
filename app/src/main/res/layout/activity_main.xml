@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/app_bg">
+
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent"
+        android:fillViewport="true" android:clipToPadding="false" android:paddingBottom="96dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="8dp">
+
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="12dp" android:paddingBottom="20dp" android:paddingStart="4dp">
+    <ImageView android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/logo" android:contentDescription="Logo Rota Livre" />
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="14dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rota Livre" android:textSize="28sp" android:textStyle="bold" android:textColor="@color/on_surface" />
+        <TextView style="@style/Hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Saiba se a corrida compensa antes de aceitar" android:textSize="14sp" />
+    </LinearLayout>
+</LinearLayout>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/brand_container" app:strokeWidth="0dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <View android:id="@+id/dot" android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/dot" />
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                <TextView android:id="@+id/tvStatusTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/on_brand_container" />
+                <TextView android:id="@+id/tvStatusSub" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="13sp" android:textColor="@color/on_brand_container" android:alpha="0.8" />
+            </LinearLayout>
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnAccess" style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ativar" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="18dp">
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:id="@+id/tvCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="30sp" android:textStyle="bold" android:textColor="@color/on_brand_container" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ofertas hoje" android:textSize="13sp" android:textColor="@color/on_brand_container" android:alpha="0.8" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:id="@+id/tvAvg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="30sp" android:textStyle="bold" android:textColor="@color/on_brand_container" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="média por km" android:textSize="13sp" android:textColor="@color/on_brand_container" android:alpha="0.8" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Modo pico" />
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Detectar pico" android:textSize="15sp" android:textColor="@color/on_surface" />
+        <TextView style="@style/Hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Quando a oferta for dinâmica, usa o mínimo de pico" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swPicoOn" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Mínimo no pico" app:suffixText="R$/km">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etPicoMin"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Passageiro" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Acima disso o quadro avisa que o passageiro está longe" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Distância máxima até o passageiro" app:suffixText="km">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMaxPickup"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Apps de delivery" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Regras separadas das corridas de passageiro" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ler ofertas de delivery" android:textSize="15sp" android:textColor="@color/on_surface" />
+        <TextView style="@style/Hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="iFood, Loggi, Shopee Entregador" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swDelivery" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Mínimo por entrega" app:suffixText="R$/km">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etDeliveryMin"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Distância máxima até a coleta" app:suffixText="km">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etDeliveryMaxPickup"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mínimo por dia e horário" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="R$ por km mínimo em cada faixa. Escolha o dia e preencha" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none">
+        <com.google.android.material.chip.ChipGroup android:id="@+id/chipDays" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            app:singleSelection="true" app:selectionRequired="true" app:singleLine="true" />
+    </HorizontalScrollView><Space android:layout_width="match_parent" android:layout_height="10dp" /><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="0-6h" >
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP0"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="8dp" android:layout_height="0dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="6-12h" >
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP1"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="8dp" android:layout_height="0dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="12-18h" >
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP2"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="8dp" android:layout_height="0dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:hint="18-24h" >
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etP3"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout></LinearLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.button.MaterialButton android:id="@+id/btnApplyAll" style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Aplicar a todos os dias" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Custos do carro" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Opcional. Deixe em branco para não calcular o lucro" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<com.google.android.material.textfield.TextInputLayout android:id="@+id/tilFuel"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Combustível">
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView android:id="@+id/ddFuel"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Preço do combustível" app:suffixText="R$/L">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etFuelPrice"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Consumo" app:suffixText="km/L">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etKmUnit"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><com.google.android.material.textfield.TextInputLayout
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Manutenção (pneu, óleo...)" app:suffixText="R$/km">
+    <com.google.android.material.textfield.TextInputEditText android:id="@+id/etMaint"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="numberDecimal" android:gravity="center_vertical" android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout><Space android:layout_width="match_parent" android:layout_height="10dp" /><TextView android:id="@+id/tvCostKm" style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="O que mostrar no quadro" />
+        
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Distância até o passageiro" android:textSize="15sp" android:textColor="@color/on_surface" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swPickup" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Valor por km" android:textSize="15sp" android:textColor="@color/on_surface" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swPerKm" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Valor por hora" android:textSize="15sp" android:textColor="@color/on_surface" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swPerHour" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lucro da corrida" android:textSize="15sp" android:textColor="@color/on_surface" />
+        <TextView style="@style/Hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Descontando combustível e manutenção" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swProfit" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Resumo do dia" android:textSize="15sp" android:textColor="@color/on_surface" />
+    </LinearLayout>
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swSummary" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Apoie o desenvolvedor" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="O app é e continua gratuito. Se ele ajuda você, um Pix de qualquer valor é bem-vindo" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+<LinearLayout android:id="@+id/supportBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="12dp">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCopyCode" style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Pix copia e cola" />
+        <Space android:layout_width="8dp" android:layout_height="0dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCopyKey" style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Chave Pix" />
+    </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<TextView android:id="@+id/tvAbout" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center"
+    android:padding="16dp" android:textSize="12sp" android:textColor="@color/on_surface_muted"
+    android:text="Rota Livre · gratuito e de distribuição livre&#10;Criado por André Luiz · andreluizs.com.br&#10;Só mostra informações: não aceita nem recusa corridas." />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton android:id="@+id/fabSave"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end" android:layout_margin="16dp" android:text="Salvar" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
