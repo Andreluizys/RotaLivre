@@ -65,11 +65,16 @@ class MainActivity : AppCompatActivity() {
         val swSummary = find<MaterialSwitch>(R.id.swSummary).apply { isChecked = Prefs.showSummary(this@MainActivity) }
 
         val tvSize = find<TextView>(R.id.tvSizeLabel)
-        val slider = find<Slider>(R.id.sliderSize).apply { value = Prefs.getOverlayScale(this@MainActivity) }
-        fun sizeLabel() { tvSize.text = "Tamanho da janela: ${(slider.value * 100).roundToInt()}%" }
+        // Em porcentagem inteira (80..180, de 10 em 10): o Slider exige passos exatos e
+        // quebrava com valores decimais gravados (ex.: 0,9111).
+        val slider = find<Slider>(R.id.sliderSize).apply {
+            val pct = ((Prefs.getOverlayScale(this@MainActivity) * 100f) / 10f).roundToInt() * 10
+            value = pct.coerceIn(80, 180).toFloat()
+        }
+        fun sizeLabel() { tvSize.text = "Tamanho da janela: ${slider.value.roundToInt()}%" }
         sizeLabel()
         slider.addOnChangeListener { _, _, _ -> sizeLabel() }
-        find<MaterialButton>(R.id.btnPreview).setOnClickListener { previewOverlay(slider.value) }
+        find<MaterialButton>(R.id.btnPreview).setOnClickListener { previewOverlay(slider.value / 100f) }
 
         bindSupport()
 
@@ -86,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             Prefs.setFuelPrice(this, etFuelPrice.value())
             Prefs.setKmPerUnit(this, etKmUnit.value())
             Prefs.setMaintPerKm(this, etMaint.value())
-            Prefs.setOverlayScale(this, slider.value)
+            Prefs.setOverlayScale(this, slider.value / 100f)
             Prefs.setShowPickup(this, swPickup.isChecked)
             Prefs.setShowPerKm(this, swPerKm.isChecked)
             Prefs.setShowPerHour(this, swPerHour.isChecked)

@@ -195,7 +195,7 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
 <TextView android:id="@+id/tvSizeLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="15sp" android:textStyle="bold" android:textColor="@color/on_surface" />
     <com.google.android.material.slider.Slider android:id="@+id/sliderSize" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:valueFrom="0.8" android:valueTo="1.8" android:stepSize="0.1" android:value="1.2" />
+        android:valueFrom="80" android:valueTo="180" android:stepSize="10" android:value="120" />
     <com.google.android.material.button.MaterialButton android:id="@+id/btnPreview" style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver exemplo neste tamanho" /><Space android:layout_width="match_parent" android:layout_height="10dp" /><TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="15sp" android:text="O que mostrar" /><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">

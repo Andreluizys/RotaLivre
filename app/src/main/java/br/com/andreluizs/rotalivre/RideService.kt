@@ -30,16 +30,46 @@ class RideService : AccessibilityService() {
     private val handler = Handler(Looper.getMainLooper())
     private val hideRunnable = Runnable { hideOverlay() }
 
+    // Leitura da tela fora da thread principal: a varredura da árvore é lenta (IPC por nó)
+    // e travava tudo, atrasando o quadro.
+    private val worker = android.os.HandlerThread("rotalivre-leitura").apply { start() }
+    private val workHandler = Handler(worker.looper)
+    private val busy = java.util.concurrent.atomic.AtomicBoolean(false)
+    @Volatile private var dirty = false
+    @Volatile private var pendingPkg = ""
+    @Volatile private var pendingEventTime = 0L
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val pkg = event?.packageName?.toString() ?: return
         if (pkg !in Targets.ALL) return
+        pendingPkg = pkg
+        pendingEventTime = event.eventTime
+
+        // Vários eventos seguidos viram uma única leitura (a mais recente).
+        if (!busy.compareAndSet(false, true)) { dirty = true; return }
+        workHandler.post {
+            try {
+                do { dirty = false; process(pendingPkg, pendingEventTime) } while (dirty)
+            } finally { busy.set(false) }
+        }
+    }
+
+    private fun process(pkg: String, eventTime: Long) {
         val delivery = Targets.isDelivery(pkg)
         if (delivery && !Prefs.isDeliveryOn(this)) return
 
-        // A oferta pode vir numa janela própria (não a ativa): lê todas as janelas do app.
-        val texts = mutableListOf<String>()
-        val roots = windows.mapNotNull { w -> w.root?.takeIf { it.packageName == pkg } }
-            .ifEmpty { listOfNotNull(rootInActiveWindow, event.source) }
+        // 1) janela ativa (rápido); 2) só se não servir, procura outras janelas do app
+        var roots = listOfNotNull(rootInActiveWindow).filter { it.packageName == pkg }
+        // Filtro barato: sem "km" na tela não é oferta, nem vale varrer a árvore toda.
+        if (roots.isNotEmpty() && roots.none { it.findAccessibilityNodeInfosByText("km").isNotEmpty() }) {
+            roots = windows.mapNotNull { w -> w.root?.takeIf { it.packageName == pkg } }
+                .filter { it.findAccessibilityNodeInfosByText("km").isNotEmpty() }
+        } else if (roots.isEmpty()) {
+            roots = windows.mapNotNull { w -> w.root?.takeIf { it.packageName == pkg } }
+        }
+        if (roots.isEmpty()) return
+
+        val texts = ArrayList<String>(64)
         roots.forEach { collect(it, texts) }
 
         val offer = OfferParser.parse(texts)
@@ -53,11 +83,19 @@ class RideService : AccessibilityService() {
         lastTime = now
 
         if (!sameOffer) Stats.add(this, offer.perKm)
-        show(offer, delivery)
+        handler.post {
+            // Mesma oferta e o quadro já sumiu (passaram os 8 s): não mostra de novo.
+            if (sameOffer && card == null) return@post
+            show(offer, delivery, renew = !sameOffer || card?.root?.parent == null)
+            if (debuggable)
+                Log.d("RotaLivre", "latência evento→quadro: ${android.os.SystemClock.uptimeMillis() - eventTime} ms")
+        }
     }
 
     companion object {
         @Volatile var instance: RideService? = null
+        /** Tempo que o quadro fica na tela depois de aparecer. */
+        const val OVERLAY_MS = 8_000L
     }
 
     private var lastLogSig = ""
@@ -87,7 +125,7 @@ class RideService : AccessibilityService() {
         FAR("PASSAGEIRO LONGE", Color.rgb(255, 184, 77), Color.argb(250, 52, 36, 8))
     }
 
-    private fun show(o: Offer, delivery: Boolean) {
+    private fun show(o: Offer, delivery: Boolean, renew: Boolean = true) {
         val picoAtivo = !delivery && Prefs.isPicoOn(this) && o.surge
         val limite = when {
             delivery -> Prefs.getDeliveryMin(this)
@@ -157,8 +195,12 @@ class RideService : AccessibilityService() {
             (getSystemService(WINDOW_SERVICE) as WindowManager).addView(c.root, lp)
         }
 
-        handler.removeCallbacks(hideRunnable)
-        handler.postDelayed(hideRunnable, 12000)
+        // O quadro some 8 s depois de aparecer. Só reinicia a contagem para uma oferta
+        // nova; atualizações da mesma oferta não prolongam.
+        if (renew) {
+            handler.removeCallbacks(hideRunnable)
+            handler.postDelayed(hideRunnable, OVERLAY_MS)
+        }
     }
 
     private class Card(
@@ -245,6 +287,7 @@ class RideService : AccessibilityService() {
 
     override fun onDestroy() {
         instance = null
+        worker.quitSafely()
         handler.removeCallbacks(hideRunnable)
         hideOverlay()
         super.onDestroy()
