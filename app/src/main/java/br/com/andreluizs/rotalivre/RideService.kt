@@ -22,73 +22,81 @@ class RideService : AccessibilityService() {
     private var card: Card? = null
     private var scale = 1f
     private var previewScale: Float? = null
-    private var lastSig = ""
-    private var lastTime = 0L
+    private var shownPkg = ""
+    private val tracker = OfferTracker()
     private val debuggable by lazy {
         applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
     }
     private val handler = Handler(Looper.getMainLooper())
-    private val hideRunnable = Runnable { hideOverlay() }
+    private val hideRunnable = Runnable {
+        hideOverlay()
+        if (shownPkg.isNotEmpty()) tracker.onExpired(shownPkg)
+    }
 
-    // Leitura da tela fora da thread principal: a varredura da árvore é lenta (IPC por nó)
-    // e travava tudo, atrasando o quadro.
+    // Leitura da tela fora da thread principal (a varredura da árvore é lenta).
+    // Espera curta depois do último evento (debounce) para ler a oferta já completa.
     private val worker = android.os.HandlerThread("rotalivre-leitura").apply { start() }
     private val workHandler = Handler(worker.looper)
-    private val busy = java.util.concurrent.atomic.AtomicBoolean(false)
-    @Volatile private var dirty = false
     @Volatile private var pendingPkg = ""
     @Volatile private var pendingEventTime = 0L
+    private var firstPendingAt = 0L
+    private val readRunnable = Runnable {
+        firstPendingAt = 0L
+        process(pendingPkg, pendingEventTime)
+    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val pkg = event?.packageName?.toString() ?: return
         if (pkg !in Targets.ALL) return
+        // Rolagem e notificações nunca mudam a oferta
+        when (event.eventType) {
+            AccessibilityEvent.TYPE_VIEW_SCROLLED,
+            AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED,
+            AccessibilityEvent.TYPE_ANNOUNCEMENT -> return
+        }
         pendingPkg = pkg
         pendingEventTime = event.eventTime
 
-        // Vários eventos seguidos viram uma única leitura (a mais recente).
-        if (!busy.compareAndSet(false, true)) { dirty = true; return }
-        workHandler.post {
-            try {
-                do { dirty = false; process(pendingPkg, pendingEventTime) } while (dirty)
-            } finally { busy.set(false) }
-        }
+        // Debounce: lê DEBOUNCE_MS depois do último evento, mas no máximo MAX_WAIT_MS depois do
+        // primeiro (telas que atualizam o tempo todo não podem adiar a leitura para sempre).
+        val now = android.os.SystemClock.uptimeMillis()
+        if (firstPendingAt == 0L) firstPendingAt = now
+        val wait = minOf(DEBOUNCE_MS, maxOf(0L, firstPendingAt + MAX_WAIT_MS - now))
+        workHandler.removeCallbacks(readRunnable)
+        workHandler.postDelayed(readRunnable, wait)
     }
 
     private fun process(pkg: String, eventTime: Long) {
+        if (pkg.isEmpty()) return
         val delivery = Targets.isDelivery(pkg)
         if (delivery && !Prefs.isDeliveryOn(this)) return
 
-        // 1) janela ativa (rápido); 2) só se não servir, procura outras janelas do app
+        // Janela ativa do app; se não servir, procura as outras janelas dele
         var roots = listOfNotNull(rootInActiveWindow).filter { it.packageName == pkg }
-        // Filtro barato: sem "km" na tela não é oferta, nem vale varrer a árvore toda.
-        if (roots.isNotEmpty() && roots.none { it.findAccessibilityNodeInfosByText("km").isNotEmpty() }) {
+        if (roots.isEmpty())
             roots = windows.mapNotNull { w -> w.root?.takeIf { it.packageName == pkg } }
-                .filter { it.findAccessibilityNodeInfosByText("km").isNotEmpty() }
-        } else if (roots.isEmpty()) {
-            roots = windows.mapNotNull { w -> w.root?.takeIf { it.packageName == pkg } }
-        }
+        // Sem janela legível agora (transição): não decide nada; o timer de 8 s cuida do quadro.
         if (roots.isEmpty()) return
 
         val texts = ArrayList<String>(64)
         roots.forEach { collect(it, texts) }
 
-        val offer = OfferParser.parse(texts)
-        if (debuggable) logTexts(pkg, texts, offer != null)
-        if (offer == null) return
+        val screen = OfferDetector.classify(pkg, texts)
+        if (debuggable) logTexts(pkg, texts, screen)
 
-        // Mesma oferta ainda na tela: só atualiza o quadro, não conta de novo.
-        val now = System.currentTimeMillis()
-        val sameOffer = offer.signature == lastSig && now - lastTime < 30_000
-        lastSig = offer.signature
-        lastTime = now
-
-        if (!sameOffer) Stats.add(this, offer.perKm)
-        handler.post {
-            // Mesma oferta e o quadro já sumiu (passaram os 8 s): não mostra de novo.
-            if (sameOffer && card == null) return@post
-            show(offer, delivery, renew = !sameOffer || card?.root?.parent == null)
-            if (debuggable)
-                Log.d("RotaLivre", "latência evento→quadro: ${android.os.SystemClock.uptimeMillis() - eventTime} ms")
+        val action = tracker.onScreen(pkg, screen, System.currentTimeMillis())
+        when (action) {
+            is Action.None -> {}
+            is Action.Hide -> handler.post { hideOverlay() }
+            is Action.Show -> {
+                if (action.count) Stats.add(this, action.offer.perKm)
+                handler.post {
+                    shownPkg = pkg
+                    show(action.offer, delivery, renew = true)
+                    if (debuggable)
+                        Log.d("RotaLivre", "latência evento→quadro: ${android.os.SystemClock.uptimeMillis() - eventTime} ms")
+                }
+            }
         }
     }
 
@@ -96,14 +104,18 @@ class RideService : AccessibilityService() {
         @Volatile var instance: RideService? = null
         /** Tempo que o quadro fica na tela depois de aparecer. */
         const val OVERLAY_MS = 8_000L
+        /** Espera depois do último evento antes de ler a tela. */
+        const val DEBOUNCE_MS = 300L
+        /** Espera máxima desde o primeiro evento (telas que não param de atualizar). */
+        const val MAX_WAIT_MS = 1_000L
     }
 
     private var lastLogSig = ""
-    private fun logTexts(pkg: String, texts: List<String>, parsed: Boolean) {
+    private fun logTexts(pkg: String, texts: List<String>, screen: Screen) {
         val sig = "$pkg|${texts.hashCode()}"
         if (sig == lastLogSig) return
         lastLogSig = sig
-        Log.d("RotaLivre", "pkg=$pkg parsed=$parsed texts=$texts")
+        Log.d("RotaLivre", "pkg=$pkg tela=${screen.kind} (${screen.reason}) estado=${tracker.state(pkg)} texts=$texts")
         if (texts.isEmpty()) {
             val w = windows.joinToString { "[type=${it.type} pkg=${it.root?.packageName} filhos=${it.root?.childCount}]" }
             Log.d("RotaLivre", "vazio: janelas=$w")
@@ -338,6 +350,7 @@ class RideService : AccessibilityService() {
 
     override fun onDestroy() {
         instance = null
+        workHandler.removeCallbacksAndMessages(null)
         worker.quitSafely()
         handler.removeCallbacks(hideRunnable)
         hideOverlay()

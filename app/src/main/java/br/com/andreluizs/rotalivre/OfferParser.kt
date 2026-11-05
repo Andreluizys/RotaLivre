@@ -5,7 +5,9 @@ data class Offer(
     val pickupKm: Double,
     val tripKm: Double,
     val totalMin: Int?,
-    val surge: Boolean
+    val surge: Boolean,
+    /** Quantas distâncias vieram na oferta (completa = 2: até o passageiro/coleta e a viagem). */
+    val distCount: Int = 2
 ) {
     /** Distância total: ir buscar o passageiro + levar até o destino. */
     val totalKm get() = pickupKm + tripKm
@@ -68,6 +70,6 @@ object OfferParser {
                 multRx.containsMatchIn(all) ||
                 extraRx.containsMatchIn(all)
 
-        return Offer(price, pickup, trip, totalMin, surge)
+        return Offer(price, pickup, trip, totalMin, surge, dists.size)
     }
 }
