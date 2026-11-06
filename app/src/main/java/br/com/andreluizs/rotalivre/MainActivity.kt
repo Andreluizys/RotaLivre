@@ -241,8 +241,17 @@ class MainActivity : AppCompatActivity() {
         find<android.widget.LinearLayout>(R.id.supportBox).addView(Support.qrView(this))
         find<MaterialButton>(R.id.btnCopyCode).setOnClickListener { Support.copyCode(this) }
         find<MaterialButton>(R.id.btnCopyKey).setOnClickListener { Support.copyKey(this) }
-        find<TextView>(R.id.tvAbout).setOnClickListener {
+        val abrirSite = View.OnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://andreluizs.com.br")))
+        }
+        find<TextView>(R.id.tvAbout).setOnClickListener(abrirSite)
+        find<TextView>(R.id.tvSite).setOnClickListener(abrirSite)
+        find<TextView>(R.id.tvContact).setOnClickListener {
+            try {
+                startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:contato@andreluizs.com.br")))
+            } catch (e: android.content.ActivityNotFoundException) {
+                android.widget.Toast.makeText(this, "Nenhum app de e-mail encontrado", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

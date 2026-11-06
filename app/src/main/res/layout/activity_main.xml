@@ -233,7 +233,13 @@
 </com.google.android.material.card.MaterialCardView>
 <TextView android:id="@+id/tvAbout" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center"
     android:padding="16dp" android:textSize="12sp" android:textColor="@color/on_surface_muted"
-    android:text="Rota Livre · gratuito e de distribuição livre&#10;Criado por André Luiz · andreluizs.com.br&#10;Só mostra informações: não aceita nem recusa corridas." />
+    android:text="Rota Livre · gratuito e de distribuição livre&#10;Criado por André Luiz&#10;Só mostra informações: não aceita nem recusa corridas." />
+<TextView android:id="@+id/tvSite" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center"
+    android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="16dp" android:textSize="12sp" android:textColor="@color/on_surface_muted"
+    android:text="Baixe e atualize o app em andreluizs.com.br (toque aqui)&#10;Como baixar: acesse o site, abra a aba Apps no cabeçalho, baixe o aplicativo, instale no celular e abra." />
+<TextView android:id="@+id/tvContact" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center"
+    android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="24dp" android:textSize="12sp" android:textColor="@color/on_surface_muted"
+    android:text="Tem uma sugestão de melhoria ou quer contar o que está acontecendo com o app? Mande um e-mail: contato@andreluizs.com.br" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

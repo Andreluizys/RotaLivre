@@ -12,8 +12,8 @@ android {
         applicationId = "br.com.andreluizs.rotalivre"
         minSdk = 26
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.4"
+        versionCode = 6
+        versionName = "1.5"
     }
     // Assinatura de release: lê as credenciais de ~/.rotalivre/keystore.properties (fora do repositório).
     val ksFile = File(System.getProperty("user.home"), ".rotalivre/keystore.properties")
