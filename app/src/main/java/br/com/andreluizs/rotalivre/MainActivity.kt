@@ -122,15 +122,35 @@ class MainActivity : AppCompatActivity() {
         btnAccess = find(R.id.btnAccess)
         tvCount = find(R.id.tvCount)
         tvAvg = find(R.id.tvAvg)
-        btnAccess.setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+        btnAccess.setOnClickListener { abrirAcessibilidade() }
         find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }    }
+
+    /** Explica o que fazer ANTES de levar a pessoa para a tela de Acessibilidade do Android. */
+    private fun abrirAcessibilidade() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Como ativar o Rota Livre")
+            .setMessage("""Você vai para a tela de Acessibilidade do Android. Lá:
+
+1. Toque em "Rota Livre" (pode estar em "Apps instalados").
+2. Ligue a chave e confirme em "Permitir".
+
+Apareceu "Acesso negado ao app" ou a opção ficou cinza? É uma proteção do Android para apps instalados fora da Play Store:
+• Feche o aviso e vá em Configurações > Apps > Rota Livre.
+• Toque nos 3 pontinhos (canto superior) > Permitir configurações restritas.
+• Volte em Acessibilidade e ligue o Rota Livre.
+
+O app só lê a tela para mostrar o quadro de ganhos. Não aceita nem recusa corridas.""")
+            .setPositiveButton("Entendi, abrir") { _, _ -> startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
 
     /** Mostra um quadro de exemplo; [scale] = tamanho ainda não salvo (null = o salvo). */
     private fun previewOverlay(scale: Float?) {
         val svc = RideService.instance
         if (svc == null) {
             Toast.makeText(this, "Leitura inativa: ligue o Rota Livre na Acessibilidade (desligue e ligue de novo)", Toast.LENGTH_LONG).show()
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            abrirAcessibilidade()
         } else svc.demo(scale = scale)
     }
 
