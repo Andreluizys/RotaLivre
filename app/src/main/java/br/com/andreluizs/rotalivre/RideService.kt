@@ -137,7 +137,7 @@ class RideService : AccessibilityService() {
         var roots = listOfNotNull(rootInActiveWindow).filter { it.packageName == pkg }
         if (roots.isEmpty())
             roots = windows.mapNotNull { w -> w.root?.takeIf { it.packageName == pkg } }
-        // Sem janela legível agora (transição): não decide nada; o timer de 8 s cuida do quadro.
+        // Sem janela legível agora (transição): não decide nada; o timer de 12 s cuida do quadro.
         if (roots.isEmpty()) return
 
         val texts = ArrayList<String>(64)
@@ -171,7 +171,7 @@ class RideService : AccessibilityService() {
     companion object {
         @Volatile var instance: RideService? = null
         /** Tempo que o quadro fica na tela depois de aparecer. */
-        const val OVERLAY_MS = 8_000L
+        const val OVERLAY_MS = 12_000L
         /** Espera depois do último evento antes de ler a tela. */
         const val DEBOUNCE_MS = 300L
         /** Espera máxima desde o primeiro evento (telas que não param de atualizar). */
@@ -279,7 +279,7 @@ class RideService : AccessibilityService() {
             (getSystemService(WINDOW_SERVICE) as WindowManager).addView(c.root, lp)
         }
 
-        // O quadro some 8 s depois de aparecer. Só reinicia a contagem para uma oferta
+        // O quadro some 12 s depois de aparecer. Só reinicia a contagem para uma oferta
         // nova; atualizações da mesma oferta não prolongam.
         if (renew) {
             handler.removeCallbacks(hideRunnable)

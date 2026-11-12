@@ -26,7 +26,7 @@ class OfferTracker(
         var state = State.SEM_OFERTA
         var lastSig = ""
         var lastSeen = 0L
-        var expiredSig = ""   // oferta cujo quadro já passou dos 8 s: não mostra de novo
+        var expiredSig = ""   // oferta cujo quadro já passou dos 12 s: não mostra de novo
         var pending: Offer? = null   // última oferta vista que ainda não foi aceita nem contada
         var acceptedSig = ""  // oferta já aceita e contada: não pode ser contada de novo
         var acceptedAt = 0L
@@ -100,7 +100,7 @@ class OfferTracker(
         return Action.Accepted(offer, hide = wasVisible)
     }
 
-    /** O quadro passou dos 8 s: a mesma oferta não deve reaparecer. */
+    /** O quadro passou dos 12 s: a mesma oferta não deve reaparecer. */
     fun onExpired(pkg: String) {
         val a = app(pkg)
         a.expiredSig = a.lastSig

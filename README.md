@@ -12,7 +12,7 @@ O app **só mostra informação**: não aceita nem recusa corridas, não coleta 
 - Modo **pico**, com mínimo próprio quando a oferta é dinâmica
 - Resumo do dia (ofertas e média R$/km)
 
-O quadro aparece assim que a oferta chega e some sozinho depois de 8 segundos.
+O quadro aparece assim que a oferta chega e some sozinho depois de 12 segundos.
 
 ## Ajustes no app
 - Mínimo de R$/km **por dia da semana**
