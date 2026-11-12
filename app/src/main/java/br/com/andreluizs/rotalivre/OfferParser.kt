@@ -7,7 +7,9 @@ data class Offer(
     val totalMin: Int?,
     val surge: Boolean,
     /** Quantas distâncias vieram na oferta (completa = 2: até o passageiro/coleta e a viagem). */
-    val distCount: Int = 2
+    val distCount: Int = 2,
+    /** Endereços lidos da tela, na ordem em que aparecem (1º = embarque, 2º = destino). Vazio se não vieram. */
+    val addresses: List<String> = emptyList()
 ) {
     /** Distância total: ir buscar o passageiro + levar até o destino. */
     val totalKm get() = pickupKm + tripKm
@@ -70,6 +72,8 @@ object OfferParser {
                 multRx.containsMatchIn(all) ||
                 extraRx.containsMatchIn(all)
 
-        return Offer(price, pickup, trip, totalMin, surge, dists.size)
+        val addresses = card.filter(AddressGeo::looksLikeAddress).map { it.trim() }.distinct().take(2)
+
+        return Offer(price, pickup, trip, totalMin, surge, dists.size, addresses)
     }
 }

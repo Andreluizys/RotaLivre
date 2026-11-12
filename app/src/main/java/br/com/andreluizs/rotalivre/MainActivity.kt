@@ -1,5 +1,6 @@
 package br.com.andreluizs.rotalivre
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
@@ -44,6 +46,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etMaint: EditText
     private lateinit var ddFuel: MaterialAutoCompleteTextView
     private var fuelIndex = 0
+    private lateinit var swOutOfCity: MaterialSwitch
+    private lateinit var swDirt: MaterialSwitch
+    private lateinit var etCity: EditText
+    private lateinit var tvGeoStatus: TextView
+
+    private val pedirLocalizacao = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        atualizarGeoStatus()
+        if (GeoLookup.hasLocationPermission(this) && !GeoLookup.hasBackgroundPermission(this)) explicarSegundoPlano()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +89,7 @@ class MainActivity : AppCompatActivity() {
         find<MaterialButton>(R.id.btnPreview).setOnClickListener { previewOverlay(slider.value / 100f) }
 
         bindSupport()
+        bindGeo()
 
         find<ExtendedFloatingActionButton>(R.id.fabSave).setOnClickListener {
             storeDay()
@@ -98,6 +110,9 @@ class MainActivity : AppCompatActivity() {
             Prefs.setShowPerHour(this, swPerHour.isChecked)
             Prefs.setShowProfit(this, swProfit.isChecked)
             Prefs.setShowSummary(this, swSummary.isChecked)
+            Prefs.setHomeCity(this, etCity.text.toString())
+            Prefs.setWarnOutOfCity(this, swOutOfCity.isChecked)
+            Prefs.setWarnDirtRoad(this, swDirt.isChecked)
             val custo = Prefs.costPerKm(this)
             Toast.makeText(
                 this,
@@ -112,6 +127,63 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshStatus()
+        if (::tvGeoStatus.isInitialized) atualizarGeoStatus()
+    }
+
+    // ---------- Avisos de endereço (fora da cidade e rua de terra) ----------
+
+    private fun bindGeo() {
+        swOutOfCity = find(R.id.swOutOfCity)
+        swDirt = find(R.id.swDirt)
+        etCity = find(R.id.etCity)
+        tvGeoStatus = find(R.id.tvGeoStatus)
+        swOutOfCity.isChecked = Prefs.warnOutOfCity(this)
+        swDirt.isChecked = Prefs.warnDirtRoad(this)
+        etCity.setText(Prefs.getHomeCity(this))
+        val aoMudar = { _: android.widget.CompoundButton, ligou: Boolean ->
+            if (ligou) pedirLocalizacaoSeFalta()
+            atualizarGeoStatus()
+        }
+        swOutOfCity.setOnCheckedChangeListener(aoMudar)
+        swDirt.setOnCheckedChangeListener(aoMudar)
+        find<MaterialButton>(R.id.btnGeoPerm).setOnClickListener { pedirLocalizacaoSeFalta(forcar = true) }
+        atualizarGeoStatus()
+    }
+
+    private fun pedirLocalizacaoSeFalta(forcar: Boolean = false) {
+        when {
+            !GeoLookup.hasLocationPermission(this) ->
+                pedirLocalizacao.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+            !GeoLookup.hasBackgroundPermission(this) -> explicarSegundoPlano()
+            forcar -> Toast.makeText(this, "A localização já está permitida o tempo todo", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** O Android só libera a localização com a Uber/99 abertas (segundo plano) se a pessoa escolher "o tempo todo". */
+    private fun explicarSegundoPlano() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Localização o tempo todo")
+            .setMessage("""Para saber onde você está enquanto a Uber ou a 99 estão abertas, o Android exige a permissão "Permitir o tempo todo".
+
+Na próxima tela: Permissões > Localização > Permitir o tempo todo.
+
+O Rota Livre só olha a sua posição quando chega uma oferta e não guarda nem envia a sua localização.""")
+            .setPositiveButton("Abrir configurações") { _, _ ->
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            }
+            .setNegativeButton("Agora não", null)
+            .show()
+    }
+
+    private fun atualizarGeoStatus() {
+        val ligado = swOutOfCity.isChecked || swDirt.isChecked
+        tvGeoStatus.visibility = if (ligado) View.VISIBLE else View.GONE
+        find<MaterialButton>(R.id.btnGeoPerm).visibility = if (ligado) View.VISIBLE else View.GONE
+        tvGeoStatus.text = when {
+            !GeoLookup.hasLocationPermission(this) -> "Localização: não permitida. Sem ela só vale a cidade escrita no endereço."
+            !GeoLookup.hasBackgroundPermission(this) -> "Localização: só com o Rota Livre aberto. Para funcionar com a Uber/99, escolha \"Permitir o tempo todo\"."
+            else -> "Localização: permitida o tempo todo."
+        }
     }
 
     // ---------- Status da leitura + resumo do dia ----------

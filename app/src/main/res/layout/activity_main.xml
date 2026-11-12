@@ -224,6 +224,40 @@
     android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:padding="18dp">
+        <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Avisos de endereço" />
+        <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tarja branca no quadro da corrida. Cada aviso só funciona se você marcar." />
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:hint="Minha cidade">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etCity"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="textCapWords" android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="10dp" android:paddingBottom="6dp">
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Avisar endereço fora da cidade" android:textSize="15sp" android:textColor="@color/on_surface" />
+                <TextView style="@style/Hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Usa a localização e a internet" />
+            </LinearLayout>
+            <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swOutOfCity" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Avisar rua de terra" android:textSize="15sp" android:textColor="@color/on_surface" />
+                <TextView style="@style/Hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Usa o mapa aberto (OpenStreetMap). Nem toda rua de terra está marcada lá." />
+            </LinearLayout>
+            <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/swDirt" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </LinearLayout>
+        <TextView android:id="@+id/tvGeoStatus" style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnGeoPerm" style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Permitir localização" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView style="@style/Card"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="18dp">
         <TextView style="@style/SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Apoie o desenvolvedor" />
         <TextView style="@style/Hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="O app é e continua gratuito. Se ele ajuda você, um Pix de qualquer valor é bem-vindo" />
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">

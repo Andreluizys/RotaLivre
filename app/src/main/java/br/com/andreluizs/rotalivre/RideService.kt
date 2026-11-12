@@ -23,6 +23,9 @@ class RideService : AccessibilityService() {
     private var scale = 1f
     private var previewScale: Float? = null
     private var shownPkg = ""
+    private var shownSig = ""
+    // Busca de endereço e de piso da rua (internet): fora da leitura da tela e do desenho do quadro
+    private val geoExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
     private val tracker = OfferTracker()
     private val debuggable by lazy {
         applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
@@ -69,6 +72,32 @@ class RideService : AccessibilityService() {
         val wait = minOf(DEBOUNCE_MS, maxOf(0L, firstPendingAt + MAX_WAIT_MS - now))
         workHandler.removeCallbacks(readRunnable)
         workHandler.postDelayed(readRunnable, wait)
+    }
+
+    /** Procura, em segundo plano, o que avisar sobre os endereços (fora da cidade, rua de terra) e põe as tarjas no quadro. */
+    private fun launchTags(offer: Offer) {
+        if (!(Prefs.warnOutOfCity(this) || Prefs.warnDirtRoad(this)) || offer.addresses.isEmpty()) return
+        val sig = offer.signature
+        geoExecutor.execute {
+            val tags = try { AddressChecker.tagsFor(this, offer) } catch (_: Exception) { emptyList() }
+            if (tags.isNotEmpty()) handler.post { if (shownSig == sig) card?.let { fillTags(it, tags) } }
+        }
+    }
+
+    /** Tarjas brancas com o aviso escrito, no topo do quadro. */
+    private fun fillTags(c: Card, tags: List<String>) {
+        c.tagBox.removeAllViews()
+        for (t in tags) {
+            c.tagBox.addView(TextView(this).apply {
+                text = t
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f * scale)
+                setTextColor(Color.rgb(20, 26, 23))
+                setTypeface(typeface, Typeface.BOLD)
+                setPadding(dp(12), dp(6), dp(12), dp(6))
+                background = GradientDrawable().apply { cornerRadius = dp(10).toFloat(); setColor(Color.WHITE) }
+            }, LinearLayout.LayoutParams(-2, -2).apply { topMargin = dp(8) })
+        }
+        c.tagBox.visibility = if (tags.isEmpty()) View.GONE else View.VISIBLE
     }
 
     /** Corrida aceita: soma os km do dia e guarda no histórico. */
@@ -127,8 +156,10 @@ class RideService : AccessibilityService() {
             }
             is Action.Show -> {
                 if (action.count) Stats.add(this, action.offer.perKm)
+                launchTags(action.offer)
                 handler.post {
                     shownPkg = pkg
+                    shownSig = action.offer.signature
                     show(action.offer, delivery, renew = true)
                     if (debuggable)
                         Log.d("RotaLivre", "latência evento→quadro: ${android.os.SystemClock.uptimeMillis() - eventTime} ms")
@@ -217,6 +248,8 @@ class RideService : AccessibilityService() {
         c.badge.setTextColor(verdict.accent)
         c.badge.background = pill(Color.argb(46, Color.red(verdict.accent), Color.green(verdict.accent), Color.blue(verdict.accent)))
         c.pico.visibility = if (picoAtivo) View.VISIBLE else View.GONE
+        c.tagBox.removeAllViews()
+        c.tagBox.visibility = View.GONE
 
         c.main.setTextColor(verdict.accent)
         c.main.text = if (Prefs.showPerKm(this)) "R$ %.2f/km".format(o.perKm) else "R$ %.2f".format(o.price)
@@ -256,7 +289,8 @@ class RideService : AccessibilityService() {
 
     private class Card(
         val root: LinearLayout, val badge: TextView, val pico: TextView,
-        val main: TextView, val sub: TextView, val details: TextView, val summary: TextView
+        val main: TextView, val sub: TextView, val details: TextView, val summary: TextView,
+        val tagBox: LinearLayout
     )
 
     private fun buildCard(): Card {
@@ -287,17 +321,22 @@ class RideService : AccessibilityService() {
         val details = tv(20f * scale, Color.WHITE, true).apply { setLineSpacing(dp(4).toFloat(), 1f); setPadding(0, dp(12), 0, 0) }
         val summary = tv(13f * scale, Color.argb(200, 255, 255, 255)).apply { setPadding(0, dp(12), 0, 0) }
 
+        val tagBox = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+        }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(18), dp(16), dp(18), dp(16))
             background = GradientDrawable().apply { cornerRadius = dp(20).toFloat() }
             addView(top)
+            addView(tagBox)
             addView(main)
             addView(sub)
             addView(details)
             addView(summary)
         }
-        return Card(root, badge, pico, main, sub, details, summary)
+        return Card(root, badge, pico, main, sub, details, summary, tagBox)
     }
 
     private fun pill(color: Int) = GradientDrawable().apply {
@@ -347,6 +386,12 @@ class RideService : AccessibilityService() {
         previewScale = scale
         try {
             show(Offer(price = 18.0, pickupKm = 1.2, tripKm = 7.3, totalMin = 24, surge = false), delivery)
+            // Mostra como ficam as tarjas, para quem ligou os avisos de endereço
+            val exemplo = buildList {
+                if (Prefs.warnOutOfCity(this@RideService)) add("EMBARQUE FORA DOS LIMITES")
+                if (Prefs.warnDirtRoad(this@RideService)) add("DESTINO RUA DE TERRA (mapa)")
+            }
+            if (exemplo.isNotEmpty()) card?.let { fillTags(it, exemplo) }
         } finally {
             previewScale = null
         }
@@ -388,6 +433,7 @@ class RideService : AccessibilityService() {
 
     override fun onDestroy() {
         instance = null
+        geoExecutor.shutdownNow()
         workHandler.removeCallbacksAndMessages(null)
         worker.quitSafely()
         handler.removeCallbacks(hideRunnable)

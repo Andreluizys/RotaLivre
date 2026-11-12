@@ -84,6 +84,17 @@ object Prefs {
     fun showSummary(c: Context) = sp(c).getBoolean("show_summary", true)
     fun setShowSummary(c: Context, v: Boolean) = sp(c).edit().putBoolean("show_summary", v).apply()
 
+    // ---- Avisos de endereço (tarjas brancas no quadro) ----
+    /** Cidade onde o motorista trabalha. Endereço de outra cidade ganha a tarja "fora dos limites". */
+    fun getHomeCity(c: Context) = sp(c).getString("home_city", "São José dos Campos")?.ifBlank { "São José dos Campos" } ?: "São José dos Campos"
+    fun setHomeCity(c: Context, v: String) = sp(c).edit().putString("home_city", v.trim()).apply()
+
+    fun warnOutOfCity(c: Context) = sp(c).getBoolean("warn_out_of_city", false)
+    fun setWarnOutOfCity(c: Context, v: Boolean) = sp(c).edit().putBoolean("warn_out_of_city", v).apply()
+
+    fun warnDirtRoad(c: Context) = sp(c).getBoolean("warn_dirt_road", false)
+    fun setWarnDirtRoad(c: Context, v: Boolean) = sp(c).edit().putBoolean("warn_dirt_road", v).apply()
+
     /** Valor mínimo por km para hoje (dia da semana). */
     fun currentMin(c: Context): Float {
         val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1   // 0 = Dom ... 6 = Sáb
