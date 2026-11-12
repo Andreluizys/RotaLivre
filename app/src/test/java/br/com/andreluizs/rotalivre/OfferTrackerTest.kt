@@ -95,4 +95,32 @@ class OfferTrackerTest {
         val a = t.onScreen("com.app99.driver", offer(), 100)
         assertTrue(a is Action.Show && a.count)
     }
+
+    @Test fun acceptClickCountsKmWithoutRideScreen() {
+        val t = OfferTracker()
+        t.onScreen(pkg, offer(pickup = 1.0, trip = 5.0), 0)
+        val a = t.onAcceptClick(pkg, 2000) as Action.Accepted
+        assertEquals(6.0, a.offer.totalKm, 0.001)
+        assertEquals(OfferTracker.State.EM_CORRIDA, t.state(pkg))
+    }
+
+    @Test fun acceptClickAndRideScreenCountOnlyOnce() {
+        val t = OfferTracker()
+        t.onScreen(pkg, offer(), 0)
+        assertTrue(t.onAcceptClick(pkg, 2000) is Action.Accepted)
+        // a tela da oferta ainda aparece por instantes e depois vem a corrida em andamento
+        assertTrue(t.onScreen(pkg, offer(), 2300) is Action.None)
+        assertTrue(t.onScreen(pkg, ride, 3000) !is Action.Accepted)
+    }
+
+    @Test fun clickWithoutOfferDoesNothing() {
+        val t = OfferTracker()
+        assertTrue(t.onAcceptClick(pkg, 1000) is Action.None)
+    }
+
+    @Test fun clickAfterOfferExpiredDoesNotCount() {
+        val t = OfferTracker()
+        t.onScreen(pkg, offer(), 0)
+        assertTrue(t.onAcceptClick(pkg, 60_000) is Action.None)
+    }
 }

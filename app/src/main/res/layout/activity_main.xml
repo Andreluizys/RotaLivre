@@ -43,7 +43,10 @@
             </LinearLayout>
         </LinearLayout>
         <com.google.android.material.button.MaterialButton android:id="@+id/btnTest" style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Testar quadro da corrida" />    </LinearLayout>
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Testar quadro da corrida" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnHistory"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Histórico de corridas aceitas" />
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
 <com.google.android.material.card.MaterialCardView style="@style/Card"
     android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp">

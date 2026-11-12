@@ -48,6 +48,11 @@ class RideService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val pkg = event?.packageName?.toString() ?: return
         if (pkg !in Targets.ALL) return
+        // Toque em "Aceitar": soma os km da oferta na hora, sem esperar a tela da corrida
+        if (event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+            onClick(pkg, event)
+            return
+        }
         // Rolagem e notificações nunca mudam a oferta
         when (event.eventType) {
             AccessibilityEvent.TYPE_VIEW_SCROLLED,
@@ -64,6 +69,34 @@ class RideService : AccessibilityService() {
         val wait = minOf(DEBOUNCE_MS, maxOf(0L, firstPendingAt + MAX_WAIT_MS - now))
         workHandler.removeCallbacks(readRunnable)
         workHandler.postDelayed(readRunnable, wait)
+    }
+
+    /** Corrida aceita: soma os km do dia e guarda no histórico. */
+    private fun registrarAceite(pkg: String, offer: Offer) {
+        Stats.addAccepted(this, offer.totalKm, offer.price)
+        RideHistory.add(this, pkg, offer)
+    }
+
+    /** O toque foi no botão de aceitar? Olha o próprio elemento, os filhos e os pais próximos. */
+    private fun onClick(pkg: String, event: AccessibilityEvent) {
+        val words = OfferKeywords.forPackage(pkg)
+        val texts = ArrayList<String>(8)
+        var node: AccessibilityNodeInfo? = event.source
+        var up = 0
+        while (node != null && up < 3) {   // o botão pode estar no elemento, ou o toque no pai dele
+            collect(node, texts, depth = 3)
+            node = node.parent
+            up++
+        }
+        event.text?.forEach { it?.toString()?.takeIf(String::isNotBlank)?.let(texts::add) }
+        val accepted = texts.any { OfferKeywords.isAccept(it, words) }
+        if (debuggable) Log.d("RotaLivre", "clique pkg=$pkg aceitar=$accepted texts=$texts")
+        if (!accepted) return
+        val a = tracker.onAcceptClick(pkg, System.currentTimeMillis())
+        if (a is Action.Accepted) {
+            registrarAceite(pkg, a.offer)
+            handler.post { hideOverlay() }
+        }
     }
 
     private fun process(pkg: String, eventTime: Long) {
@@ -89,7 +122,7 @@ class RideService : AccessibilityService() {
             is Action.None -> {}
             is Action.Hide -> handler.post { hideOverlay() }
             is Action.Accepted -> {
-                Stats.addAccepted(this, action.offer.totalKm, action.offer.price)
+                registrarAceite(pkg, action.offer)
                 if (action.hide) handler.post { hideOverlay() }
             }
             is Action.Show -> {
@@ -126,11 +159,12 @@ class RideService : AccessibilityService() {
         }
     }
 
-    private fun collect(node: AccessibilityNodeInfo?, out: MutableList<String>) {
+    private fun collect(node: AccessibilityNodeInfo?, out: MutableList<String>, depth: Int = Int.MAX_VALUE) {
         if (node == null) return
         node.text?.toString()?.takeIf { it.isNotBlank() }?.let(out::add)
         node.contentDescription?.toString()?.takeIf { it.isNotBlank() }?.let(out::add)
-        for (i in 0 until node.childCount) collect(node.getChild(i), out)
+        if (depth <= 0) return
+        for (i in 0 until node.childCount) collect(node.getChild(i), out, depth - 1)
     }
 
     // ---------- Quadro da corrida ----------

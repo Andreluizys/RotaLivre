@@ -125,7 +125,11 @@ class MainActivity : AppCompatActivity() {
         tvAvg = find(R.id.tvAvg)
         tvKm = find(R.id.tvKm)
         btnAccess.setOnClickListener { abrirAcessibilidade() }
-        find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }    }
+        find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }
+        find<MaterialButton>(R.id.btnHistory).setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
+    }
 
     /** Explica o que fazer ANTES de levar a pessoa para a tela de Acessibilidade do Android. */
     private fun abrirAcessibilidade() {

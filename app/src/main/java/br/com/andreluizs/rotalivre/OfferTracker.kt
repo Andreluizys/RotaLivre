@@ -28,6 +28,8 @@ class OfferTracker(
         var lastSeen = 0L
         var expiredSig = ""   // oferta cujo quadro já passou dos 8 s: não mostra de novo
         var pending: Offer? = null   // última oferta vista que ainda não foi aceita nem contada
+        var acceptedSig = ""  // oferta já aceita e contada: não pode ser contada de novo
+        var acceptedAt = 0L
     }
 
     private val apps = HashMap<String, App>()
@@ -45,7 +47,10 @@ class OfferTracker(
                 // Só conta uma vez (pending é zerado) e nunca por leituras durante a corrida.
                 val accepted = a.pending?.takeIf { now - a.lastSeen < acceptWindowMs }
                 a.pending = null
-                if (accepted != null) return Action.Accepted(accepted, hide = was == State.OFERTA_VISIVEL)
+                if (accepted != null) {
+                    markAccepted(a, pkg, accepted, now)
+                    return Action.Accepted(accepted, hide = was == State.OFERTA_VISIVEL)
+                }
                 return if (was == State.OFERTA_VISIVEL) Action.Hide else Action.None
             }
             ScreenKind.OTHER -> {
@@ -57,6 +62,9 @@ class OfferTracker(
             ScreenKind.OFFER -> {
                 val offer = screen.offer ?: return Action.None
                 val sig = pkg + "|" + offer.signature
+                // A tela da oferta ainda aparece por instantes depois do toque em "Aceitar":
+                // não é oferta nova e não pode voltar a ser contada.
+                if (sig == a.acceptedSig && now - a.acceptedAt < sameOfferWindowMs) return Action.None
                 val sameAsLast = sig == a.lastSig && now - a.lastSeen < sameOfferWindowMs
                 val wasVisible = a.state == State.OFERTA_VISIVEL
                 a.state = State.OFERTA_VISIVEL
@@ -70,6 +78,26 @@ class OfferTracker(
                 return Action.Show(offer, count)
             }
         }
+    }
+
+    private fun markAccepted(a: App, pkg: String, offer: Offer, now: Long) {
+        a.acceptedSig = pkg + "|" + offer.signature
+        a.acceptedAt = now
+    }
+
+    /**
+     * O motorista tocou em "Aceitar" (evento de clique da acessibilidade). É o sinal mais
+     * confiável de aceite: não depende de reconhecer a tela da corrida em andamento.
+     * Conta uma vez só (a leitura da tela da corrida depois não conta de novo).
+     */
+    fun onAcceptClick(pkg: String, now: Long): Action {
+        val a = app(pkg)
+        val offer = a.pending?.takeIf { now - a.lastSeen < acceptWindowMs } ?: return Action.None
+        val wasVisible = a.state == State.OFERTA_VISIVEL
+        a.pending = null
+        a.state = State.EM_CORRIDA
+        markAccepted(a, pkg, offer, now)
+        return Action.Accepted(offer, hide = wasVisible)
     }
 
     /** O quadro passou dos 8 s: a mesma oferta não deve reaparecer. */
