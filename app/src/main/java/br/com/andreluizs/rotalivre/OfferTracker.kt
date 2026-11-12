@@ -6,13 +6,19 @@ sealed class Action {
     object Hide : Action()
     /** [count]: é uma oferta nova (entra no resumo do dia). */
     class Show(val offer: Offer, val count: Boolean) : Action()
+    /** A oferta foi aceita (virou corrida em andamento): esconde o quadro e soma os km. */
+    class Accepted(val offer: Offer, val hide: Boolean) : Action()
 }
 
 /**
  * Máquina de estados por app: SEM_OFERTA → OFERTA_VISIVEL → EM_CORRIDA.
  * Usa a assinatura da oferta para não recalcular, redesenhar nem contar duas vezes a mesma oferta.
  */
-class OfferTracker(private val sameOfferWindowMs: Long = 30_000L) {
+class OfferTracker(
+    private val sameOfferWindowMs: Long = 30_000L,
+    /** Quanto tempo depois de ver a oferta a corrida em andamento ainda conta como "aceitou". */
+    private val acceptWindowMs: Long = 15_000L
+) {
 
     enum class State { SEM_OFERTA, OFERTA_VISIVEL, EM_CORRIDA }
 
@@ -21,6 +27,7 @@ class OfferTracker(private val sameOfferWindowMs: Long = 30_000L) {
         var lastSig = ""
         var lastSeen = 0L
         var expiredSig = ""   // oferta cujo quadro já passou dos 8 s: não mostra de novo
+        var pending: Offer? = null   // última oferta vista que ainda não foi aceita nem contada
     }
 
     private val apps = HashMap<String, App>()
@@ -34,6 +41,11 @@ class OfferTracker(private val sameOfferWindowMs: Long = 30_000L) {
             ScreenKind.IN_RIDE -> {
                 val was = a.state
                 a.state = State.EM_CORRIDA
+                // Aceitou: a oferta foi vista há pouco e agora há corrida em andamento.
+                // Só conta uma vez (pending é zerado) e nunca por leituras durante a corrida.
+                val accepted = a.pending?.takeIf { now - a.lastSeen < acceptWindowMs }
+                a.pending = null
+                if (accepted != null) return Action.Accepted(accepted, hide = was == State.OFERTA_VISIVEL)
                 return if (was == State.OFERTA_VISIVEL) Action.Hide else Action.None
             }
             ScreenKind.OTHER -> {
@@ -49,6 +61,7 @@ class OfferTracker(private val sameOfferWindowMs: Long = 30_000L) {
                 val wasVisible = a.state == State.OFERTA_VISIVEL
                 a.state = State.OFERTA_VISIVEL
                 a.lastSeen = now
+                a.pending = offer
                 val count = !sameAsLast
                 a.lastSig = sig
                 if (sig == a.expiredSig && sameAsLast) return Action.None

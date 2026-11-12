@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnAccess: MaterialButton
     private lateinit var tvCount: TextView
     private lateinit var tvAvg: TextView
+    private lateinit var tvKm: TextView
     private lateinit var tvCostKm: TextView
     private lateinit var etFuelPrice: EditText
     private lateinit var etKmUnit: EditText
@@ -122,6 +123,7 @@ class MainActivity : AppCompatActivity() {
         btnAccess = find(R.id.btnAccess)
         tvCount = find(R.id.tvCount)
         tvAvg = find(R.id.tvAvg)
+        tvKm = find(R.id.tvKm)
         btnAccess.setOnClickListener { abrirAcessibilidade() }
         find<MaterialButton>(R.id.btnTest).setOnClickListener { previewOverlay(null) }    }
 
@@ -162,6 +164,7 @@ O app só lê a tela para mostrar o quadro de ganhos. Não aceita nem recusa cor
         btnAccess.text = if (on) "Ajustes" else "Ativar"
         tvCount.text = Stats.count(this).toString()
         tvAvg.text = "R$ %.2f".format(Stats.average(this))
+        tvKm.text = "%.1f".format(Stats.acceptedKm(this))
     }
 
     private fun isServiceEnabled(): Boolean {

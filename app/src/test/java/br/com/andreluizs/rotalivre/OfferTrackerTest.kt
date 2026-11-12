@@ -35,9 +35,32 @@ class OfferTrackerTest {
     @Test fun acceptedRideHidesAndNeverCalculatesDuringRide() {
         val t = OfferTracker()
         t.onScreen(pkg, offer(), 0)
-        assertTrue(t.onScreen(pkg, ride, 1000) is Action.Hide)
+        val a = t.onScreen(pkg, ride, 1000)
+        assertTrue(a is Action.Accepted && a.hide)
         assertEquals(OfferTracker.State.EM_CORRIDA, t.state(pkg))
         repeat(10) { assertTrue(t.onScreen(pkg, ride, 2000L + it) is Action.None) }
+    }
+
+    @Test fun acceptedRideCountsKmOnlyOnce() {
+        val t = OfferTracker()
+        t.onScreen(pkg, offer(pickup = 1.0, trip = 5.0), 0)
+        val a = t.onScreen(pkg, ride, 1000) as Action.Accepted
+        assertEquals(6.0, a.offer.totalKm, 0.001)
+        repeat(10) { assertTrue(t.onScreen(pkg, ride, 2000L + it) !is Action.Accepted) }
+    }
+
+    @Test fun acceptThroughFlickerStillCounts() {
+        val t = OfferTracker()
+        t.onScreen(pkg, offer(), 0)
+        t.onScreen(pkg, other, 500)
+        assertTrue(t.onScreen(pkg, ride, 1500) is Action.Accepted)
+    }
+
+    @Test fun declinedOfferNeverCountsAsAccepted() {
+        val t = OfferTracker()
+        t.onScreen(pkg, offer(), 0)
+        t.onScreen(pkg, other, 1000)
+        assertTrue(t.onScreen(pkg, ride, 60_000) !is Action.Accepted)
     }
 
     @Test fun newOfferAfterRideShowsAgain() {

@@ -88,6 +88,10 @@ class RideService : AccessibilityService() {
         when (action) {
             is Action.None -> {}
             is Action.Hide -> handler.post { hideOverlay() }
+            is Action.Accepted -> {
+                Stats.addAccepted(this, action.offer.totalKm, action.offer.price)
+                if (action.hide) handler.post { hideOverlay() }
+            }
             is Action.Show -> {
                 if (action.count) Stats.add(this, action.offer.perKm)
                 handler.post {
